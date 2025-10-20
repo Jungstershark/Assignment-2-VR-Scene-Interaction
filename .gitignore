@@ -2,7 +2,7 @@
 Library
 Logs
 Temp
-UserSettings/
+UserSettings
 *.csproj
 *.sln
 .vsconfig
