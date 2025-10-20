@@ -2,7 +2,7 @@
 Library
 Logs
 Temp
-/UserSettings
-Assignment-2-VR-Scene-Interaction.sln
-Assembly-CSharp.csproj
+UserSettings/
+*.csproj
+*.sln
 .vsconfig
