@@ -73,7 +73,7 @@ public class RightHandInteractor : MonoBehaviour {
     //  TODO: Implement the function to construct a ray using the wristTransform's position and orientation.
     public Ray ConstructRay(Transform wristTransform) {
 
-        return new Ray(Vector3.zero, Vector3.forward);
+        return new Ray(wristTransform.position, wristTransform.forward);
 
     }
 
@@ -84,7 +84,9 @@ public class RightHandInteractor : MonoBehaviour {
     //  Task 2. Render the ray
     //  TODO: Implement the function to render the ray using a cylinder.
     public void RenderRay(Ray ray, float rayLength) {
-
+        rayCylinder.transform.position = ray.origin;
+        rayCylinder.transform.LookAt(ray.direction);
+        rayCylinder.transform.localScale = new Vector3(0.1f, 0.1f, rayLength);
         return;
 
     }
