@@ -70,9 +70,19 @@ public class LeftHandInteractor : MonoBehaviour {
     //  Task 6. Scaling
     //  TODO: Update the scale of the object according to the distance between the two hands.
     public void UpdateScaling(float OriginalDistance, float CurrentDistance, Vector3 OriginalScale, float MinScale, float MaxScale, Vector3 CurrentGrabPoint, Vector3 ObjectOffsetAfterManipulation) {
+        if (currentGrabbingObject == null) return;
 
-        return;
+        // Compute uniform scale factor, avoid divide-by-zero
+        float safeOriginal = Mathf.Max(OriginalDistance, 1e-4f);
+        float scaleRatio = Mathf.Clamp(CurrentDistance / safeOriginal, MinScale, MaxScale);
 
+        // Apply uniform scaling
+        Vector3 newScale = OriginalScale * scaleRatio;
+        currentGrabbingObject.transform.localScale = newScale;
+
+        // Adjust position so the contact point (grab point) stays fixed
+        Vector3 newCenter = CurrentGrabPoint + ObjectOffsetAfterManipulation * scaleRatio;
+        currentGrabbingObject.transform.position = newCenter;
     }
 
 

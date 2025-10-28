@@ -66,31 +66,35 @@ public class RightHandInteractor : MonoBehaviour {
 
 
 
-
-
-
     //  Task 1. Construct the ray
     //  TODO: Implement the function to construct a ray using the wristTransform's position and orientation.
     public Ray ConstructRay(Transform wristTransform) {
 
-        return new Ray(Vector3.zero, Vector3.forward);
+        return new Ray(wristTransform.position, wristTransform.forward);
 
     }
 
 
-
+    private System.Collections.IEnumerator ReportWristPosition() {
+        while (true) {
+            yield return new WaitForSeconds(1.0f);
+            Debug.Log("Wrist Position: " + wristTransform.position.ToString());
+        }
+    }
 
 
     //  Task 2. Render the ray
     //  TODO: Implement the function to render the ray using a cylinder.
     public void RenderRay(Ray ray, float rayLength) {
-
+        // Debug.DrawRay(ray.origin, ray.direction * rayLength, Color.green);
+        Vector3 rayDestination = ray.origin + ray.direction * rayLength;
+        rayCylinder.transform.position = ray.origin + ray.direction * rayLength / 2;
+        rayCylinder.transform.LookAt(rayDestination);
+        rayCylinder.transform.localScale = new Vector3(0.05f, 0.05f, rayLength);
+        // debugSphere.transform.position = ray.origin + ray.direction * rayLength;
         return;
 
     }
-
-
-
 
 
     //  Task 3. Intersection between the ray and a virtual object
@@ -151,11 +155,20 @@ public class RightHandInteractor : MonoBehaviour {
     //  TODO: Implement the function to calculate the position and orientation of the object being manipulated.
     public Pose UpdateObjectPose(Vector3 CurrentGrabPoint, Vector3 ObjectOffset, Quaternion OriginalObjectRotation, Quaternion OriginalHandRotation, Quaternion CurrentHandRotation) {
         
-        return new Pose(Vector3.zero, Quaternion.identity);
+        // Hand rotation delta from grab start → current frame
+        Quaternion handDelta = CurrentHandRotation * Quaternion.Inverse(OriginalHandRotation);
 
+        // Rotate the object by the same delta
+        Quaternion newRotation = handDelta * OriginalObjectRotation;
+
+        // Rotate the original (grab→center) offset by the same delta so the contact point stays put
+        Vector3 rotatedOffset = handDelta * ObjectOffset;
+
+        // New object center = current grab point + rotated offset
+        Vector3 newPosition = CurrentGrabPoint + rotatedOffset;
+
+        return new Pose(newPosition, newRotation);
     }
-
-
 
 
 
