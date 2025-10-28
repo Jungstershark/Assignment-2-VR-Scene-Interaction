@@ -8,6 +8,7 @@ using UnityEngine.InputSystem.HID;
 using UnityEngine.UIElements;
 
 
+
 public class RightHandInteractor : MonoBehaviour {
 
 
@@ -37,6 +38,7 @@ public class RightHandInteractor : MonoBehaviour {
     }
 
     public GameObject rayCylinder;
+    // public GameObject debugSphere;
     public float rayLength = 2.0f;
 
 
@@ -78,15 +80,23 @@ public class RightHandInteractor : MonoBehaviour {
     }
 
 
-
+    private System.Collections.IEnumerator ReportWristPosition() {
+        while (true) {
+            yield return new WaitForSeconds(1.0f);
+            Debug.Log("Wrist Position: " + wristTransform.position.ToString());
+        }
+    }
 
 
     //  Task 2. Render the ray
     //  TODO: Implement the function to render the ray using a cylinder.
     public void RenderRay(Ray ray, float rayLength) {
-        rayCylinder.transform.position = ray.origin;
-        rayCylinder.transform.LookAt(ray.direction);
-        rayCylinder.transform.localScale = new Vector3(0.1f, 0.1f, rayLength);
+        // Debug.DrawRay(ray.origin, ray.direction * rayLength, Color.green);
+        Vector3 rayDestination = ray.origin + ray.direction * rayLength;
+        rayCylinder.transform.position = ray.origin + ray.direction * rayLength / 2;
+        rayCylinder.transform.LookAt(rayDestination);
+        rayCylinder.transform.localScale = new Vector3(0.05f, 0.05f, rayLength);
+        // debugSphere.transform.position = ray.origin + ray.direction * rayLength;
         return;
 
     }
@@ -146,6 +156,7 @@ public class RightHandInteractor : MonoBehaviour {
 
     void Start() {
         SetColor(Color.blue, rayCylinder);
+        // StartCoroutine(ReportWristPosition());
     }
 
     void Update() {
