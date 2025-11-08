@@ -68,9 +68,6 @@ public class RightHandInteractor : MonoBehaviour {
 
 
 
-
-
-
     //  Task 1. Construct the ray
     //  TODO: Implement the function to construct a ray using the wristTransform's position and orientation.
     public Ray ConstructRay(Transform wristTransform) {
@@ -102,42 +99,78 @@ public class RightHandInteractor : MonoBehaviour {
     }
 
 
-
-
-
     //  Task 3. Intersection between the ray and a virtual object
     //  TODO: Check if there exists intersection between the ray and an Interactable virtual object.
-    public bool CheckHit(Ray ray, float rayLength) {
+    public bool CheckHit(Ray ray, float rayLength)
+    {
+        // Cast the ray and search for the closest collider tagged "Interactable"
+        RaycastHit[] hits = Physics.RaycastAll(ray, rayLength);
 
+        GameObject bestObj = null;
+        Vector3 bestPoint = Vector3.zero;
+        float closest = Mathf.Infinity;
+
+        foreach (var h in hits)
+        {
+            GameObject go = h.collider.gameObject;
+            if (!go.CompareTag("Interactable")) continue;
+
+            if (h.distance < closest)
+            {
+                closest = h.distance;
+                bestObj = go;
+                bestPoint = h.point;
+            }
+        }
+
+        if (bestObj != null)
+        {
+            currentHitObject = bestObj;   // remember which object we hit
+            hitPoint = bestPoint;         // and the world-space intersection point
+            SetColor(Color.green, currentHitObject); // visual feedback (Figure 7)
+            return true;
+        }
         return false;
-
     }
-
-
-
-
 
     //  Task 4. Trigger object selection by closing your right hand
     //  TODO: Implement the functionality that should be called when the hand is starting to grab (closing fist).
-    public void TriggerGrabbing() {
+    public void TriggerGrabbing()
+    {
+        // Only proceed if we have a remembered hit target
+        if (currentHitObject == null) return;
 
-        return;
+        // Update control state
+        isControling = true;
+        controllingObject = currentHitObject; // (useful for the left-hand scaler if it references this)
 
+        // Visual feedback & hide the ray while manipulating
+        SetColor(Color.red, currentHitObject);
+        if (rayCylinder != null) rayCylinder.SetActive(false);
+
+        // Record initial orientations
+        OriginalHandRotation   = wristTransform.rotation;
+        OriginalObjectRotation = currentHitObject.transform.rotation;
     }
-
-
-
-
 
     //  Task 5. Manipulate the object by using your right hand (with closed fist)
     //  TODO: Implement the function to calculate the position and orientation of the object being manipulated.
     public Pose UpdateObjectPose(Vector3 CurrentGrabPoint, Vector3 ObjectOffset, Quaternion OriginalObjectRotation, Quaternion OriginalHandRotation, Quaternion CurrentHandRotation) {
         
-        return new Pose(Vector3.zero, Quaternion.identity);
+        // Hand rotation delta from grab start → current frame
+        Quaternion handDelta = CurrentHandRotation * Quaternion.Inverse(OriginalHandRotation);
 
+        // Rotate the object by the same delta
+        Quaternion newRotation = handDelta * OriginalObjectRotation;
+
+        // Rotate the original (grab→center) offset by the same delta so the contact point stays put
+        Vector3 rotatedOffset = handDelta * ObjectOffset;
+
+        // New object center = current grab point + rotated offset
+        Vector3 newPosition = CurrentGrabPoint + rotatedOffset;
+
+        return new Pose(newPosition, newRotation);
     }
-
-
 
 
 
