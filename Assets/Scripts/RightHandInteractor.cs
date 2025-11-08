@@ -8,6 +8,7 @@ using UnityEngine.InputSystem.HID;
 using UnityEngine.UIElements;
 
 
+
 public class RightHandInteractor : MonoBehaviour {
 
 
@@ -37,6 +38,7 @@ public class RightHandInteractor : MonoBehaviour {
     }
 
     public GameObject rayCylinder;
+    // public GameObject debugSphere;
     public float rayLength = 2.0f;
 
 
@@ -187,6 +189,7 @@ public class RightHandInteractor : MonoBehaviour {
 
     void Start() {
         SetColor(Color.blue, rayCylinder);
+        // StartCoroutine(ReportWristPosition());
     }
 
     void Update() {

@@ -72,9 +72,12 @@ public class LeftHandInteractor : MonoBehaviour {
     public void UpdateScaling(float OriginalDistance, float CurrentDistance, Vector3 OriginalScale, float MinScale, float MaxScale, Vector3 CurrentGrabPoint, Vector3 ObjectOffsetAfterManipulation) {
         if (currentGrabbingObject == null) return;
 
-        // Compute uniform scale factor, avoid divide-by-zero
-        float safeOriginal = Mathf.Max(OriginalDistance, 1e-4f);
-        float scaleRatio = Mathf.Clamp(CurrentDistance / safeOriginal, MinScale, MaxScale);
+        float scaleRatio = CurrentDistance / OriginalDistance;
+        scaleRatio = Mathf.Clamp(scaleRatio, MinScale, MaxScale);
+        Vector3 newScale = OriginalScale * scaleRatio;
+        currentGrabbingObject.transform.localScale = newScale;
+        currentGrabbingObject.transform.position = CurrentGrabPoint + ObjectOffsetAfterManipulation;
+        return;
 
         // Apply uniform scaling
         Vector3 newScale = OriginalScale * scaleRatio;
